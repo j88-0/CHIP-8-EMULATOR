@@ -1,5 +1,6 @@
 #include "systemVars.h"
 #include <iostream>
+#include <SDL2/SDL.h>
 
 class Chip8 {
 
@@ -23,8 +24,17 @@ int main(int argc, char **argv) {
 
   Chip8 chip;
 
+  // Testing SDL window creation ...
+  int initErr = SDL_Init(SDL_INIT_EVERYTHING);
+  if (!initErr) {
+    std::cout << "Couldn't initialize SDL library: " << initErr << std::endl;
+  }
 
-  
+  SDL_Surface *screen = SDL_SetVideoMode(600,500,16,SDL_SWSURFACE);
+
+  //SDL_WM_SetCaption("~~chip8~~", "Chip8Display")
+
+  SDL_Quit();
 
   /* For testing ...
   std::cout << "cpuV0:" << +chip.v[0] << std::endl;
