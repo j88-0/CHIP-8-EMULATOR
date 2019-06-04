@@ -1,6 +1,8 @@
 #ifndef OPCODE_EXEC_H
 #define OPCODE_EXEC_H
 
+#include <cstdint>
+
 int execCLS();
 int execRET();
 int execSYS(uint16_t nnn);

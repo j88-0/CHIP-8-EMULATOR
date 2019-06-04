@@ -1,36 +1,16 @@
 #include "system_vars.h"
-#include "opcode_exec.h" 
+#include "opcode_exec.h"
 #include <iostream>
-#include <SDL2/SDL.h>
+#include <mingw.thread.h>
+#include <chrono>
 
-class Chip8 {
+int loadProgram(); // Function decleratin for loading program into address space...
+int updateGraphics();
+int updateTimers();
+int disassemble(uint16_t instruction);
 
-  public:
-// General purpose 8 bit registers below...
-    uint8_t v[0xF] = {0}; // All the registers from v0 to vF.
-
-    uint8_t memory[ADDRESS_SPACE] = {0};
-
-    uint8_t DT = 0; // Stands for the delay timer register.
-    uint8_t ST = 0; // Stands for the sound timer register.
-
-    uint16_t I = 0; // For storing memory addresses...
-
-    uint16_t pc = 0; // Stands for program counter...
-
-    uint8_t sp = 0; // Stands for stack pointer...
-    uint16_t stack[0xF] = {0}; // Stack which stores addresses that interpretter should return when finished with subroutines.
-
-    uint8_t drawFlag:1;
-    uint8_t enabled:1;
-
-    Chip8() {
-      drawFlag = 0;
-      enabled = 0;
-      return;
-    }
-
-};
+Chip8 chip;
+char *targetFile;
 
 int main(int argc, char **argv) {
 
@@ -38,28 +18,64 @@ int main(int argc, char **argv) {
     std::cerr << "Arguments required: [TARGET FILE]" << std::endl;
     return 1; // return 1 since their isn't the required amount of arguments.
   }
-  // Testing SDL window creation ...
+
   int initErr = SDL_Init(SDL_INIT_EVERYTHING);
   if (initErr) {
-    std::cerr << "Couldn't initialize SDL library: " << initErr << std::endl;
+    std::cerr << "Couldn't initialize SDL library: " << SDL_GetError() << std::endl;
     return 1;
   }
 
-  Chip8 chip;
+  targetFile = argv[1]; // Retrieves the target path/filename.
 
-  std::cout << sizeof chip << std::endl;
-
-  SDL_Window *window;
-  window = SDL_CreateWindow("chip8display",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH,WINDOW_HEIGHT,0);
-
-  // Delay is just for testing...
-  while (chip.enabled) {
-
+  SDL_Window *window = SDL_CreateWindow("chip8display",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH,WINDOW_HEIGHT,0);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window,-1,0);
+  int RenderLogicErr = SDL_RenderSetLogicalSize(renderer,WINDOW_WIDTH,WINDOW_HEIGHT);
+  if (RenderLogicErr) {
+    std::cerr << "Couldn't set up renderer: " << SDL_GetError() << std::endl;
+    return 1;
   }
 
-  SDL_DestroyWindow(window);
+  SDL_Texture *texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGB888,SDL_TEXTUREACCESS_STREAMING,WINDOW_WIDTH,WINDOW_HEIGHT);
 
+  SDL_SetRenderDrawColor(renderer,50,171,108,0);
+
+  chip.enabled = 1;
+  while (chip.enabled) {
+    uint16_t instruction = (chip.memory[chip.pc] << 8) | chip.memory[chip.pc+1];
+    disassemble(instruction); // Fetch, Decode, Execute
+    updateTimers(); // Update the timer registers ST and DT... 
+    if (chip.drawFlag) {
+      updateGraphics();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 60 Hertz equates to 1000 milleseconds... // Time to wait for when emulating cycles.
+  }
+
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
   SDL_Quit();
 
+  return 0;
+}
+
+int updateGraphics() {
+
+  SDL_RenderClear(renderer);
+  SDL_RenderPresent(renderer);
+  return 0;
+}
+
+int loadProgram() {
+
+  return 0;
+}
+
+int updateTimers() {
+  if (chip.DT > 0) {
+    chip.DT--;
+  }
+  if (chip.ST > 0) {
+    chip.ST--;
+    std::cout << '\a' << std::endl; // sounds off the administration beep.
+  }
   return 0;
 }

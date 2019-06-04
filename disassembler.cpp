@@ -3,24 +3,28 @@
 #include <sys/types.h> // This header and one below are for the open system command.
 #include <fcntl.h> //
 
-int disassemble(int32_t instruction) {
+// extern defines global linkage ...
+extern Chip8 chip;
 
-  uint8_t fN = instruction & 0xF000; // First nibble.
+int disassemble(uint16_t instruction) { 
+
+  // This listing retrieves the actual values ...
+  uint8_t fN = (instruction & 0xF000)>>12; // First nibble.
   uint16_t nnn = instruction & 0x0FFF;
   uint8_t n = instruction & 0x000F;
-  uint8_t x = instruction & 0x0F00;
-  uint8_t y = instruction & 0x00F0;
+  uint8_t x = (instruction & 0x0F00)>>8;
+  uint8_t y = (instruction & 0x00F0)>>4;
   uint8_t kk = instruction & 0x00FF;
 
   if (instruction == 0x00E0) {
     execCLS();
   }
   else if (instruction == 0x00EE) {
-    execRET(); 
+    execRET();
   }
   else {
     switch (fN) {
-      case 0x0: execSYS(nnn) break;
+      case 0x0: execSYS(nnn); break;
       case 0x1: execJP(nnn); break;
       case 0x2: execCALL(nnn); break;
       case 0x3: execSE(x,kk); break;
@@ -42,15 +46,15 @@ int disassemble(int32_t instruction) {
           default: return 1;
         }
       break;
-      case 0x9: execSNE2(x,y) break;
-      case 0xA: execLD3(nnn) break;
-      case 0xB: execJP2(nnn) break;
-      case 0xC: execRND(x,kk) break;
-      case 0xD: execDRW(x,y,n) break;
+      case 0x9: execSNE2(x,y); break;
+      case 0xA: execLD3(nnn); break;
+      case 0xB: execJP2(nnn); break;
+      case 0xC: execRND(x,kk); break;
+      case 0xD: execDRW(x,y,n); break;
       case 0xE:
         switch (n) {
-          case 0xE: execSKP(x) break;
-          case 0x1: execSKNP(x) break;
+          case 0xE: execSKP(x); break;
+          case 0x1: execSKNP(x); break;
           default: return 1;
         }
       break;

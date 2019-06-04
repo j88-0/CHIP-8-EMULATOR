@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=
+CPPFLAGS=-D_WIN32_WINNT=0x0501
 
 OBJECT_FILES= chip8emulator.o disassembler.o opcode_exec.o
 EXEC_NAME=chip8emulator
@@ -9,6 +9,6 @@ LIBS=SDL2
 #-L./ Searches the current directory for the linker files.
 
 chip8emulator: $(OBJECT_FILES)
-	$(CC) $(OBJECT_FILES) -L. -l$(LIBS) -o $(EXEC_NAME)
+	$(CC) $(OBJECT_FILES) -L. -l$(LIBS) $(CPPFLAGS) -o $(EXEC_NAME)
 clean:
 	rm -f $(OBJECT_FILES) $(EXEC)
