@@ -1,9 +1,7 @@
 #include "system_vars.h"
-#include <cstdlib>
-#include <time.h>
-// extern defines global linkage ...
+#include <time.h> // For generating a seed value for random value generation...
+
 extern Chip8 chip;
-extern SDL_Window *window;
 
 void incPC() {
   chip.pc+=2;
@@ -11,7 +9,10 @@ void incPC() {
 }
 /// Above method is just to increment the pc, quickly...
 int execCLS() { // WILL NEED TO USE SDL FOR THIS...
-
+  for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) {
+      chip.graphics[i] = 0; // all pixels back to black.
+  }
+  incPC();
   return 0;
 }
 
@@ -88,19 +89,19 @@ int execLD2(uint8_t x,uint8_t y) {
 }
 
 int execOR(uint8_t x,uint8_t y) {
-  chip.V[x] = chip.V[x] | chip.V[y];
+  chip.V[x] |= chip.V[y];
   incPC();
   return 0;
 }
 
 int execAND(uint8_t x,uint8_t y) {
-  chip.V[x] = chip.V[x] & chip.V[y];
+  chip.V[x] &= chip.V[y];
   incPC();
   return 0;
 }
 
 int execXOR(uint8_t x,uint8_t y) {
-  chip.V[x]^=chip.V[y];
+  chip.V[x] ^= chip.V[y];
   incPC();
   return 0;
 }
@@ -118,13 +119,13 @@ int execADD2(uint8_t x,uint8_t y) { // To finish working on...
 }
 
 int execSUB(uint8_t x,uint8_t y) {
-  chip.V[x]-=chip.V[y];
   if (chip.V[x] > chip.V[y]) {
     chip.V[0xF] = 1;
   }
   else {
     chip.V[0xF] = 0;
   }
+  chip.V[x]-=chip.V[y];
   incPC();
   return 0;
 }
@@ -138,7 +139,7 @@ int execSHR(uint8_t x) { // Stands for divide by 2.
 
 int execSUBN(uint8_t x,uint8_t y) {
   if (chip.V[y] > chip.V[x]) {
-    chip.V[0xF] = 0;
+    chip.V[0xF] = 1;
   }
   else {
     chip.V[0xF] = 0;
@@ -173,33 +174,53 @@ int execLD3(uint16_t nnn) {
 
 int execJP2(uint16_t nnn) {
   chip.pc=nnn+chip.V[0];
-  incPC();
   return 0;
 }
 
 int execRND(uint8_t x,uint8_t kk) {
   srand(time(NULL));
-  chip.V[x] = rand()%256 & kk;
+  chip.V[x] = (rand()%256) & kk;
   incPC();
   return 0;
 }
 
 int execDRW(uint8_t x,uint8_t y,uint8_t n) { // NEED SDL FOR USAGE...
-  uint8_t offset = 0;
-  for (int i = 0; i <= n; i++) {
-
+  uint16_t pixel;
+  chip.V[0xF] = 0;
+  for (int yline = 0; yline < n; yline++) {
+    pixel = chip.memory[chip.I + yline];
+        for(int xline = 0; xline < 8; xline++) {
+            if((pixel & (0x80 >> xline)) != 0) {
+                if(chip.graphics[(x + xline + ((y + yline) * 64))] == 1) {
+                    chip.V[0xF] = 1;
+                }
+                chip.graphics[x + xline + ((y + yline) * 64)] ^= 1;
+            }
+         }
   }
+
+  chip.drawFlag = 1;
   incPC();
   return 0;
 }
 
-int execSKP(uint8_t x) { // Will need SDL...
-
+int execSKP(uint8_t x) {
+  if (chip.keyState[chip.V[x]] != 0) {
+    chip.pc+=4;
+  }
+  else {
+    incPC();
+  }
   return 0;
 }
 
-int execSKNP(uint8_t x) { // Will need SDL...
-  
+int execSKNP(uint8_t x) {
+  if (chip.keyState[chip.V[x]] == 0) {
+    chip.pc+=4;
+  }
+  else {
+    incPC();
+  }
   return 0;
 }
 
@@ -209,7 +230,14 @@ int execLD4(uint8_t x) {
   return 0;
 }
 
-int execLD5(uint8_t x) { // Will need to use SDL..
+int execLD5(uint8_t x) {
+  for (int i = 0; i <= 0xF; i++) {
+    if (chip.keyState[i]) {
+      chip.V[x] = i;
+      incPC();
+      break;
+    }
+  }
   return 0;
 }
 

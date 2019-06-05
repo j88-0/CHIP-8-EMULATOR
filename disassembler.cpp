@@ -6,7 +6,7 @@
 // extern defines global linkage ...
 extern Chip8 chip;
 
-int disassemble(uint16_t instruction) { 
+int disassemble(uint16_t instruction) {
 
   // This listing retrieves the actual values ...
   uint8_t fN = (instruction & 0xF000)>>12; // First nibble.
