@@ -9,7 +9,7 @@ void incPC() {
 }
 /// Above method is just to increment the pc, quickly...
 int execCLS() { // WILL NEED TO USE SDL FOR THIS...
-  for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) { 
+  for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) {
       chip.graphics[i] = 0; // all pixels back to black.
   }
   incPC();
@@ -184,6 +184,7 @@ int execRND(uint8_t x,uint8_t kk) {
   return 0;
 }
 
+// Reference: Muller, Laurence. “Multigesture.net.” Multigesturenet, www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/.
 int execDRW(uint8_t x,uint8_t y,uint8_t n) { // NEED SDL FOR USAGE...
   uint16_t pixel;
 

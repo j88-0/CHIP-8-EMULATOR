@@ -63,7 +63,8 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-int updateGraphics() {
+// Reference: Muller, Laurence. “Multigesture.net.” Multigesturenet, www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/.
+int updateGraphics() { // Borrowed Code
 
   chip.drawFlag = 0; // Deactivates drawing flag to not draw pointless if DRW opcode hasn't occured.
 
