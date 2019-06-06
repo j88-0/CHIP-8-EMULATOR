@@ -9,10 +9,9 @@ void incPC() {
 }
 /// Above method is just to increment the pc, quickly...
 int execCLS() { // WILL NEED TO USE SDL FOR THIS...
-  for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) {
+  for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) { 
       chip.graphics[i] = 0; // all pixels back to black.
   }
-  chip.drawFlag = 1;
   incPC();
   return 0;
 }
@@ -194,7 +193,7 @@ int execDRW(uint8_t x,uint8_t y,uint8_t n) { // NEED SDL FOR USAGE...
                pixel = chip.memory[chip.I + i];
                for (int j = 0; j < 8; j++) {
                    if ((pixel & (0x80 >> j)) != 0) {
-                       int index = ((x + j) + ((y + i) * ACTUAL_WIDTH)) % (ACTUAL_WIDTH*ACTUAL_HEIGHT);
+                       int index = ((chip.V[x] + j) + ((chip.V[y] + i) * ACTUAL_WIDTH)) % (ACTUAL_WIDTH*ACTUAL_HEIGHT);
                        if (chip.graphics[index] == 1) {
                            chip.V[0xF] = 1;
                        }

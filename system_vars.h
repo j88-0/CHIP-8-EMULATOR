@@ -13,8 +13,8 @@
 
 #define SPRITE_SIZE 0xF // Sprite size can be 15 bytes or 0xF bytes with size of 8x15.
 
-#define WINDOW_WIDTH 1040 // Windows width.
-#define WINDOW_HEIGHT 520 // Windows height.
+#define WINDOW_WIDTH 640 // Windows width.
+#define WINDOW_HEIGHT 320 // Windows height.
 
 #define ACTUAL_WIDTH 64 // Actual width.
 #define ACTUAL_HEIGHT 32 // Actual height.

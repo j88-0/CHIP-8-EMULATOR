@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
 
     uint16_t instruction = (chip.memory[chip.pc] << 8) | chip.memory[chip.pc+1];
     // For testing purposes... std::cout << std::hex << +instruction << std::endl;
+    detectKeys();
     disassemble(instruction); // Fetch, Decode, Execute
 
     if (chip.drawFlag) {
@@ -53,8 +54,7 @@ int main(int argc, char **argv) {
     }
 
     updateTimers(); // Update the timer registers ST and DT...
-    detectKeys();
-    std::this_thread::sleep_for(std::chrono::milliseconds(16)); //roughly 60 Hertz refresh rate...  equates to 16666 microseconds... // Time to wait for when emulating cycles.
+    std::this_thread::sleep_for(std::chrono::microseconds(1800)); //roughly 60 Hertz refresh rate...  equates to 16666 microseconds... // Time to wait for when emulating cycles.
 
   }
 
@@ -74,7 +74,7 @@ int updateGraphics() {
 
   SDL_UpdateTexture(texture, NULL, pixels, ACTUAL_WIDTH*sizeof(uint32_t));
   // Clear screen and render
-//  SDL_RenderClear(renderer); // Clears the pixels buffer pixels with drawing color, making all bytes equal to 0.
+  SDL_RenderClear(renderer); // Clears the pixels buffer pixels with drawing color, making all bytes equal to 0.
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer); // Displays current renderer pixels.
   return 0;
@@ -94,7 +94,7 @@ int setUpSDL() {
     return 1;
   }
 
-  renderer = SDL_CreateRenderer(window,-1,0);
+  renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (!renderer) {
     std::cerr << "SDL renderer could not be created: " << SDL_GetError() << std::endl;
     return 1;
@@ -112,6 +112,8 @@ int setUpSDL() {
     std::cerr << "Couldn't set up sdl texture: " << SDL_GetError() << std::endl;
     return 1;
   }
+
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear to black
 
   return 0;
 }
