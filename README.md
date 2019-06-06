@@ -13,3 +13,7 @@
   <li>Cowgod's Chip-8 Technical Reference, devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.0.</li>
   <li>Muller, Laurence. “Multigesture.net.” Multigesturenet, www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/.</li>
 </ul>
+
+<h3>Info:</h3>
+<p> This was my first full fledge C++ project and was when i first started learning C++.</p>
+<p> There is probally alot of errors and garbage written in this, but I rushed this some and was busy trying to understand just how emulators work.</p>

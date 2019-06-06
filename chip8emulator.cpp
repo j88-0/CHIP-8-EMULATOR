@@ -6,6 +6,8 @@
 #include <fstream>
 #include <mingw.thread.h>
 #include <chrono>
+#include <cstring>
+#include <cstdlib>
 
 int loadProgram(); // Function decleratin for loading program into address space...
 int updateGraphics();
@@ -32,11 +34,13 @@ int main(int argc, char **argv) {
 
   if (setUpSDL()) {
     std::cerr << "SDL could not be setup" << std::endl;
+    safeExit();
     return 1;
   }
 
   if (loadProgram()) {
     std::cerr << "SDL could not be setup" << std::endl;
+    safeExit();
     return 1;
   }
 
@@ -159,7 +163,7 @@ int updateTimers() {
   }
   if (chip.ST > 0) {
     chip.ST--;
-    std::cout << '\a' << std::endl; // sounds off the system beep.
+    std::cout << "\a" << std::endl;
   }
   return 0;
 }
@@ -183,6 +187,10 @@ int detectKeys()  {
    while (SDL_PollEvent(&event)) {
      switch (event.type) {
         case SDL_KEYDOWN:
+            if (event.key.keysym.sym == SDLK_ESCAPE) {
+              safeExit();
+              exit(0);
+            }
             for (int i = 0; i <= 0xF; i++) {
               if (event.key.keysym.sym == chip.keySDLMap[i]) { // Line below is just for testing purposes.
                   chip.keyState[i] = 1;
