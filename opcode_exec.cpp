@@ -12,6 +12,7 @@ int execCLS() { // WILL NEED TO USE SDL FOR THIS...
   for (int i = 0; i < ACTUAL_WIDTH*ACTUAL_HEIGHT; i++) {
       chip.graphics[i] = 0; // all pixels back to black.
   }
+  chip.drawFlag = 1;
   incPC();
   return 0;
 }
@@ -186,17 +187,20 @@ int execRND(uint8_t x,uint8_t kk) {
 
 int execDRW(uint8_t x,uint8_t y,uint8_t n) { // NEED SDL FOR USAGE...
   uint16_t pixel;
+
   chip.V[0xF] = 0;
-  for (int yline = 0; yline < n; yline++) {
-    pixel = chip.memory[chip.I + yline];
-        for(int xline = 0; xline < 8; xline++) {
-            if((pixel & (0x80 >> xline)) != 0) {
-                if(chip.graphics[(x + xline + ((y + yline) * 64))] == 1) {
-                    chip.V[0xF] = 1;
-                }
-                chip.graphics[x + xline + ((y + yline) * 64)] ^= 1;
-            }
-         }
+
+  for (int i = 0; i < n; i++)  {
+               pixel = chip.memory[chip.I + i];
+               for (int j = 0; j < 8; j++) {
+                   if ((pixel & (0x80 >> j)) != 0) {
+                       int index = ((x + j) + ((y + i) * ACTUAL_WIDTH)) % (ACTUAL_WIDTH*ACTUAL_HEIGHT);
+                       if (chip.graphics[index] == 1) {
+                           chip.V[0xF] = 1;
+                       }
+                       chip.graphics[index] ^= 1;
+                   }
+               }
   }
 
   chip.drawFlag = 1;
@@ -205,7 +209,7 @@ int execDRW(uint8_t x,uint8_t y,uint8_t n) { // NEED SDL FOR USAGE...
 }
 
 int execSKP(uint8_t x) {
-  if (chip.keyState[chip.V[x]] != 0) {
+  if (chip.keyState[chip.V[x]]) {
     chip.pc+=4;
   }
   else {
@@ -215,7 +219,7 @@ int execSKP(uint8_t x) {
 }
 
 int execSKNP(uint8_t x) {
-  if (chip.keyState[chip.V[x]] == 0) {
+  if (!chip.keyState[chip.V[x]]) {
     chip.pc+=4;
   }
   else {
@@ -254,6 +258,12 @@ int execLD7(uint8_t x) {
 }
 
 int execADD3(uint8_t x) {
+  if ((chip.I + chip.V[x]) > 0xFFF) {
+    chip.V[0xF] = 1;
+  }
+  else {
+    chip.V[0xF] = 0;
+  }
   chip.I+=chip.V[x];
   incPC();
   return 0;
@@ -274,21 +284,19 @@ int execLD9(uint8_t x) {
 }
 
 int execLD10(uint8_t x) {
-  uint16_t offset = 0;
   for (int reg = 0; reg <= x; reg++) {
-      chip.memory[chip.I+offset] = chip.V[reg];
-      offset++;
-    }
+      chip.memory[chip.I+reg] = chip.V[reg];
+  }
+  chip.I+=x+1;
   incPC();
   return 0;
 }
 
 int execLD11(uint8_t x) {
-  uint16_t offset = 0;
   for (int reg = 0; reg <= x; reg++) {
-    chip.V[reg] = chip.memory[chip.I+offset];
-    offset++;
+    chip.V[reg] = chip.memory[chip.I+reg];
   }
+  chip.I+=x+1;
   incPC();
   return 0;
 }

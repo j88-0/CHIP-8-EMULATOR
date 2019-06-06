@@ -44,7 +44,7 @@ int disassemble(uint16_t instruction) {
           case 0x7: execSUBN(x,y); break;
           case 0xE: execSHL(x); break;
           default: return 1;
-        }
+        } 
       break;
       case 0x9: execSNE2(x,y); break;
       case 0xA: execLD3(nnn); break;

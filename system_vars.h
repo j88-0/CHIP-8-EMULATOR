@@ -14,7 +14,7 @@
 #define SPRITE_SIZE 0xF // Sprite size can be 15 bytes or 0xF bytes with size of 8x15.
 
 #define WINDOW_WIDTH 1040 // Windows width.
-#define WINDOW_HEIGHT 620 // Windows height.
+#define WINDOW_HEIGHT 520 // Windows height.
 
 #define ACTUAL_WIDTH 64 // Actual width.
 #define ACTUAL_HEIGHT 32 // Actual height.
@@ -58,7 +58,7 @@ class Chip8 {
 
     uint16_t I = 0; // For storing memory addresses...
 
-    uint16_t pc = 0x200; // Stands for program counter...
+    uint16_t pc = 0; // Stands for program counter...
 
     uint8_t sp = 0; // Stands for stack pointer...
     uint16_t stack[0x10] = {0}; // Stack which stores addresses that interpretter should return when finished with subroutines.
@@ -72,6 +72,7 @@ class Chip8 {
     Chip8() {
       drawFlag = 0;
       enabled = 0;
+      pc = 0x200;
       loadFontSet();
       return;
     }

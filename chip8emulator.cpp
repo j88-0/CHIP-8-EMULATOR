@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 
     updateTimers(); // Update the timer registers ST and DT...
     detectKeys();
-    std::this_thread::sleep_for(std::chrono::milliseconds(6)); //roughly 60 Hertz refresh rate...  equates to 16666 microseconds... // Time to wait for when emulating cycles.
+    std::this_thread::sleep_for(std::chrono::milliseconds(16)); //roughly 60 Hertz refresh rate...  equates to 16666 microseconds... // Time to wait for when emulating cycles.
 
   }
 
@@ -71,11 +71,10 @@ int updateGraphics() {
     uint8_t pixel = chip.graphics[i];
     pixels[i] = (0x00FFFFFF * pixel) | 0xFF000000;
   }
-  // Update SDL texture
 
   SDL_UpdateTexture(texture, NULL, pixels, ACTUAL_WIDTH*sizeof(uint32_t));
   // Clear screen and render
-  SDL_RenderClear(renderer); // Clears the pixels buffer pixels with drawing color, making all bytes equal to 0.
+//  SDL_RenderClear(renderer); // Clears the pixels buffer pixels with drawing color, making all bytes equal to 0.
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer); // Displays current renderer pixels.
   return 0;
@@ -114,7 +113,6 @@ int setUpSDL() {
     return 1;
   }
 
-  SDL_SetRenderDrawColor(renderer,255,255,255,0);
   return 0;
 }
 
@@ -164,6 +162,9 @@ int updateTimers() {
 }
 
 void safeExit() {
+  if (texture) {
+    SDL_DestroyTexture(texture);
+  }
   if (renderer) {
     SDL_DestroyRenderer(renderer);
   }
